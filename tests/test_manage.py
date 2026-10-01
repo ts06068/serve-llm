@@ -2,7 +2,9 @@
 import argparse
 import contextlib
 import io
+import ssl
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 from runpod import manage
@@ -76,6 +78,23 @@ class LifecycleTests(unittest.TestCase):
              patch.object(manage.time, "monotonic", side_effect=[0, 2]):
             with self.assertRaisesRegex(RuntimeError, "running and billing"):
                 manage.wait_ready(1, 10)
+
+    def test_tls_eof_is_retried_until_endpoint_is_ready(self):
+        eof = urllib.error.URLError(ssl.SSLEOFError(8, "UNEXPECTED_EOF_WHILE_READING"))
+        response = io.StringIO('{"data":[{"id":"gemma-4-31b-it","max_model_len":32768}]}')
+        with patch.object(manage, "config", return_value={"OPENAI_BASE_URL": "https://test/v1"}), \
+             patch.object(manage, "request", side_effect=[eof, response]) as request, \
+             patch.object(manage.time, "sleep"):
+            manage.wait_ready(1200, 10)
+            self.assertEqual(request.call_count, 2)
+
+    def test_certificate_error_remains_visible(self):
+        error = urllib.error.URLError(ssl.SSLCertVerificationError(1, "CERTIFICATE_VERIFY_FAILED"))
+        with patch.object(manage, "config", return_value={"OPENAI_BASE_URL": "https://test/v1"}), \
+             patch.object(manage, "request", side_effect=error):
+            ready, detail = manage.probe()
+            self.assertFalse(ready)
+            self.assertIn("CERTIFICATE_VERIFY_FAILED", detail)
 
     def test_dry_run_makes_no_api_call(self):
         args = self.args("stop")

@@ -1,6 +1,7 @@
 """Start/stop the recorded Pod and check authenticated endpoint readiness."""
 import argparse
 import json
+import ssl
 import subprocess
 import sys
 import time
@@ -43,12 +44,17 @@ def probe():
         return False, "Configured model / 32768-token context was not found"
     except urllib.error.HTTPError as error:
         return False, f"HTTP {error.code}"
+    except urllib.error.URLError as error:
+        if isinstance(error.reason, ssl.SSLEOFError):
+            return False, "HTTPS connection closed (TLS EOF); checking tunnel readiness"
+        return False, str(error)
     except (OSError, ValueError) as error:
         return False, str(error)
 
 
 def wait_ready(timeout, interval, require_outage=False):
-    deadline = time.monotonic() + timeout
+    started = time.monotonic()
+    deadline = started + timeout
     last_notice = 0
     while True:
         ready, detail = probe()
@@ -66,7 +72,7 @@ def wait_ready(timeout, interval, require_outage=False):
             )
         if now - last_notice >= 30:
             stage = "container restart" if require_outage else "vLLM / Pinggy"
-            print(f"Waiting for {stage}: {detail}", flush=True)
+            print(f"Waiting for {stage} [{int(now - started)}/{timeout}s]: {detail}", flush=True)
             last_notice = now
         delay = 1 if require_outage else interval
         time.sleep(min(delay, max(0, deadline - now)))
