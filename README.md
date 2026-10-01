@@ -7,11 +7,11 @@ Pinggy Pro 고정 도메인을 통해 OpenAI 호환 API에 접속합니다.
 
 ## 켜기 · 끄기 · 사용
 
-프로젝트 위치는 `/serve-llm`입니다. 아래 스크립트는 실행 위치와 관계없이 프로젝트의
+프로젝트 위치는 `/workspace/recap/serve-llm`입니다. 아래 스크립트는 실행 위치와 관계없이 프로젝트의
 설정과 키를 읽습니다. 현재 Pod 한 개를 관리하며 새 Pod나 볼륨을 자동 생성하지 않습니다.
 
 ```bash
-cd /serve-llm
+cd /workspace/recap/serve-llm
 ./start.sh                     # Pod 시작 → vLLM/Pinggy 준비 확인 (최대 20분)
 ./status.sh                    # Pod 상태와 인증된 endpoint 확인
 python3 llm.py '한국어로 간단히 자기소개해 주세요.'
