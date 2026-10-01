@@ -13,6 +13,12 @@ from runpod.common import ROOT
 from llm import config, request
 
 
+class RunpodError(RuntimeError):
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code
+
+
 def deployment():
     private = ROOT / ".secrets/deployment.json"
     path = private if private.is_file() else ROOT / "runpod/deployment.json"
@@ -28,8 +34,36 @@ def cli(*arguments):
         capture_output=True, text=True, timeout=90,
     )
     if result.returncode:
-        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "Runpod command failed")
+        message = result.stderr.strip() or result.stdout.strip() or "Runpod command failed"
+        try:
+            error = json.loads(message)
+        except ValueError:
+            error = None
+        if isinstance(error, dict):
+            raise RunpodError(error.get("error", message), error.get("code"))
+        raise RunpodError(message)
     return json.loads(result.stdout) if result.stdout.strip() else {}
+
+
+def start_pod(pod_id, attempts, retry_delay):
+    retry_codes = {"server_error", "network_error", "rate_limited"}
+    for attempt in range(1, attempts + 1):
+        try:
+            return cli("pod", "start", pod_id)
+        except RunpodError as error:
+            if error.code not in retry_codes:
+                raise
+            # A failed API response can follow a successful start. Confirm state
+            # before retrying, including after the final attempted start.
+            current = cli("pod", "get", pod_id)
+            if current.get("desiredStatus", "").upper() == "RUNNING":
+                return current
+            if attempt == attempts:
+                raise
+            delay = retry_delay * 2 ** (attempt - 1)
+            print(f"Start attempt {attempt}/{attempts} failed ({error.code}): {error}", flush=True)
+            print(f"Retrying the same Pod in {delay}s.", flush=True)
+            time.sleep(delay)
 
 
 def probe():
@@ -124,7 +158,7 @@ def operate(args):
         cli("pod", "restart", pod_id)
         print(f"RESTART requested: {pod_id}.", flush=True)
     elif not running:
-        cli("pod", "start", pod_id)
+        start_pod(pod_id, args.start_attempts, args.retry_delay)
         print(f"START requested: {pod_id}.", flush=True)
     else:
         print(f"Pod {pod_id} is already running.", flush=True)
@@ -140,10 +174,14 @@ def main():
     parser.add_argument("--no-wait", action="store_true", help="Return after start/restart request")
     parser.add_argument("--timeout", type=int, default=1200, help="Readiness deadline in seconds")
     parser.add_argument("--interval", type=int, default=10, help="Readiness polling interval")
+    parser.add_argument("--start-attempts", type=int, default=3,
+                        help="Total start attempts for temporary Runpod API failures")
+    parser.add_argument("--retry-delay", type=int, default=15,
+                        help="Initial start retry delay in seconds (doubles after each failure)")
     parser.add_argument("--dry-run", action="store_true", help="Print target without any API request")
     args = parser.parse_args()
-    if args.timeout <= 0 or args.interval <= 0:
-        parser.error("--timeout and --interval must be positive")
+    if min(args.timeout, args.interval, args.start_attempts, args.retry_delay) <= 0:
+        parser.error("--timeout, --interval, --start-attempts, and --retry-delay must be positive")
     try:
         operate(args)
     except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:

@@ -22,6 +22,7 @@ python3 llm.py '한국어로 간단히 자기소개해 주세요.'
 ./restart.sh                   # 실행 중인 컨테이너 재시작 → 재기동 확인
 ./start.sh --no-wait            # 시작 요청 후 바로 반환
 ./start.sh --timeout 1800       # 준비 확인 제한 시간 30분
+./start.sh --start-attempts 5 --retry-delay 20  # 시작 재시도 횟수와 초기 간격
 ./stop.sh --dry-run             # 대상만 표시, API 요청 없음
 ./serve.sh logs                # vLLM/Pinggy 최근 로그 (SSH 키 필요)
 ```
@@ -35,6 +36,12 @@ python3 llm.py '한국어로 간단히 자기소개해 주세요.'
 `status.sh`로 확인하거나 `stop.sh`로 중지하세요.
 
 `stop`은 GPU를 반납하므로 이후 `start`는 GPU 재고 부족으로 실패할 수 있습니다.
+Runpod의 일시적인 서버·네트워크 오류에는 같은 Pod의 상태를 다시 조회한 뒤
+기본적으로 총 3회 시작을 시도합니다. 재시도 간격은 15초, 30초입니다.
+인증 오류는 즉시 종료합니다. 재고 부족이 계속되면 재시도 후에도 실패할 수 있으며,
+이 경우 나중에 다시 시도하거나 같은 데이터센터에 기존 network volume을 붙인
+새 Pod를 배포해야 합니다. 기존 Pod를 반복 시작해도 다른 호스트로 자동 이동하지 않습니다.
+자세한 설명은 [Runpod GPU 재시작 가용성](https://docs.runpod.io/pods/troubleshooting/zero-gpus)을 참고하세요.
 볼륨에 저장된 모델과 환경, Pinggy Pro 고정 주소는 유지합니다.
 `restart`는 현재 GPU를 유지한 채 컨테이너를 재시작합니다.
 
