@@ -1,0 +1,51 @@
+{
+  "volume_id": "2h6c9qaapu",
+  "data_center": "EUR-IS-1",
+  "volume_size_gb": 150,
+  "pod_id": "evy0qvubbaorgx",
+  "gpu": "NVIDIA A100-SXM4-80GB",
+  "gpu_count": 1,
+  "image": "runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404",
+  "startup": {
+    "entrypoint": [
+      "/bin/bash",
+      "-c"
+    ],
+    "cmd": [
+      "if [ -f /workspace/serve/.runtime-ready ]; then exec /bin/bash /workspace/serve/boot.sh; else exec /start.sh; fi"
+    ]
+  },
+  "model": "google/gemma-4-31B-it",
+  "model_revision": "842da3794eaa0b77d5f08bae87a17459d91ff475",
+  "base_url": "https://sbjgnfufyl.a.pinggy.link/v1",
+  "max_model_len": 32768,
+  "dtype": "bfloat16",
+  "serving_verified": true,
+  "gpu_hourly_usd": 1.59,
+  "network_volume_gb": 150,
+  "long_context_verified": true,
+  "container_restart_verified": true,
+  "verified_at": "2026-10-01T09:18:10.471333+00:00",
+  "served_model_name": "gemma-4-31b-it",
+  "max_num_seqs": 1,
+  "runtime": {
+    "vllm": "0.30.0+cu129",
+    "torch": "2.13.0+cu129",
+    "torchcodec": "0.16.0+cu129",
+    "cuda": "12.9",
+    "driver": "580.159.04",
+    "attention_backend": "TRITON_ATTN",
+    "kv_cache_gib": 12.1,
+    "kv_cache_tokens": 61784
+  },
+  "verification_file": "runpod/verification.restart.json",
+  "benchmark_file": "runpod/benchmark.json",
+  "cleanup": {
+    "previous_pod_id": "rr4xzr6s02zuz4",
+    "previous_pod_deleted": true,
+    "previous_volume_id": "5qhx6ugoo1",
+    "previous_volume_deleted": true,
+    "previous_volume_delete_requires_approval": false,
+    "previous_volume_deleted_at": "2026-10-01T09:42:32.365882+00:00"
+  }
+}

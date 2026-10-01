@@ -1,0 +1,31 @@
+{
+  "volume_id": "5qhx6ugoo1",
+  "data_center": "EU-RO-1",
+  "volume_size_gb": 150,
+  "pod_id": "rr4xzr6s02zuz4",
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "gpu_count": 1,
+  "image": "runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404",
+  "startup": {
+    "entrypoint": [
+      "/bin/bash",
+      "-c"
+    ],
+    "cmd": [
+      "if [ -f /workspace/serve/.runtime-ready ]; then exec /bin/bash /workspace/serve/boot.sh; else exec /start.sh; fi"
+    ]
+  },
+  "model": "google/gemma-4-31B-it",
+  "model_revision": "842da3794eaa0b77d5f08bae87a17459d91ff475",
+  "base_url": "https://sbjgnfufyl.a.pinggy.link/v1",
+  "max_model_len": 32768,
+  "dtype": "bfloat16",
+  "serving_verified": false,
+  "gpu_hourly_usd": 1.59,
+  "network_volume_gb": 150,
+  "pod_deleted": true,
+  "volume_deleted": true,
+  "volume_delete_requires_approval": false,
+  "replaced_by_pod_id": "evy0qvubbaorgx",
+  "volume_deleted_at": "2026-10-01T09:42:32.365882+00:00"
+}

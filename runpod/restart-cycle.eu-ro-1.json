@@ -1,0 +1,9 @@
+{
+  "pod_id": "rr4xzr6s02zuz4",
+  "base_url": "https://sbjgnfufyl.a.pinggy.link/v1",
+  "stop_confirmed_at": "2026-10-01T08:38:48Z",
+  "start_requested_at": "2026-10-01T08:39:49.328069+00:00",
+  "restart_verified": false,
+  "start_failed_reason": "No free GPUs on the original host; EU-RO-1 A100 capacity unavailable.",
+  "replacement_pod_id": "evy0qvubbaorgx"
+}

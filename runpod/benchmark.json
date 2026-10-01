@@ -1,0 +1,17 @@
+{
+  "measured_at": "2026-10-01T09:13:51.181635+00:00",
+  "base_url": "https://sbjgnfufyl.a.pinggy.link/v1",
+  "usage": {
+    "prompt_tokens": 30,
+    "total_tokens": 286,
+    "completion_tokens": 256,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "time_to_first_content_seconds": 2.962,
+  "total_seconds": 13.033,
+  "client_observed_decode_tokens_per_second": 25.32,
+  "concurrent_requests": 1,
+  "note": "One request via Pinggy; decoding rate excludes the first-content latency."
+}

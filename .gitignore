@@ -1,0 +1,8 @@
+.secrets/
+.tools/
+.venv/
+.env
+.env.*
+*.log
+__pycache__/
+runpod/state.private.json

@@ -1,0 +1,20 @@
+{
+  "pod_id": "evy0qvubbaorgx",
+  "base_url": "https://sbjgnfufyl.a.pinggy.link/v1",
+  "operation": "restart running container (GPU retained)",
+  "restart_requested_at": "2026-10-01T08:56:35.218359+00:00",
+  "restart_verified": true,
+  "autostart_observed_at": "2026-10-01T08:58:36.296663+00:00",
+  "container_started_at": "2026-10-01T08:56:30Z",
+  "autostart_processes": [
+    "runpod-base",
+    "vllm",
+    "pinggy"
+  ],
+  "endpoint_verified_at": "2026-10-01T09:18:10.471333+00:00",
+  "api_ready_at": "2026-10-01T09:11:20Z",
+  "first_startup_seconds": 890,
+  "gpu_retained": true,
+  "same_base_url": true,
+  "verification_file": "runpod/verification.restart.json"
+}
